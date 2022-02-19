@@ -12,6 +12,7 @@
 #include "PrintfConvertCheck.h"
 #include "StrPrintfConvertCheck.h"
 #include "TraceConvertCheck.h"
+#include "UnnecessaryCStrCheck.h"
 
 namespace clang {
 namespace tidy {
@@ -24,6 +25,8 @@ public:
     CheckFactories.registerCheck<PrintfConvertCheck>("fmt-printf-convert");
     CheckFactories.registerCheck<StrPrintfConvertCheck>(
         "fmt-strprintf-convert");
+    CheckFactories.registerCheck<UnnecessaryCStrCheck>(
+        "fmt-unnecessary-cstr");
   }
 };
 

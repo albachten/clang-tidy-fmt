@@ -9,6 +9,7 @@ add_clang_library(clangTidyFmtModule
   PrintfConvertCheck.cpp
   StrPrintfConvertCheck.cpp
   TraceConvertCheck.cpp
+  UnnecessaryCStrCheck.cpp
 
   LINK_LIBS
   clangTidy
