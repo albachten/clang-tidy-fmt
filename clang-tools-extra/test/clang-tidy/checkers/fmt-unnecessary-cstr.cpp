@@ -56,6 +56,17 @@ void fmt_print_pointers_functions() {
   // CHECK-FIXES: fmt::print("One:{} Two:{}\n", *get_s1_pointer(), *get_s2_pointer());
 }
 
+void fmt_unqualified(const std::string &s1) {
+    using namespace fmt;
+    print("One:{}\n", s1.c_str());
+  // CHECK-MESSAGES: [[@LINE-1]]:3: warning: Remove unnecessary call to c_str() [fmt-unnecessary-cstr]
+  // CHECK-FIXES: fmt::print("One:{}\n", s1);
+}
+
+void fmt_no_cstr(const std::string &s1, const std::string &s2) {
+    fmt::print("One: {}, Two: {}\n", s1, s2);
+}
+
 void not_fmt(const std::string &s1) {
     notfmt::print("One: {}\n", s1.c_str());
 }

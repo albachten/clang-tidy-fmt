@@ -29,14 +29,14 @@ void UnnecessaryCStrCheck::registerMatchers(MatchFinder *Finder) {
  //      expr(hasType(cxxRecordDecl(hasName("::std::wstring"))));
 
  auto StringType = hasUnqualifiedDesugaredType(recordType(hasDeclaration(cxxRecordDecl(hasName("::std::basic_string")))));
-
+// auto PrintCall = hasUnqualifiedDesugaredType(functionType(hasDeclaration(functionDecl(hasName("::fmt::print")))));
+ auto PrintCall = hasName("::fmt::print");
   StatementMatcher CStrMatcher = traverse(
-      TK_AsIs, cxxMemberCallExpr(
-          callee(cxxMethodDecl(hasName("c_str"))),
-//          hasArgument(0, anyOf(StringClassExpr, WStringClassExpr)))
-//          on(hasType(cxxRecordDecl(hasName("::std::basic_string")))))
-          on(hasType(StringType)))
-          .bind("c_str"));
+      TK_AsIs, callExpr(callee(functionDecl(PrintCall)),
+                        hasAnyArgument(cxxMemberCallExpr(
+                                            callee(cxxMethodDecl(hasName("c_str"))),
+                                            on(hasType(StringType)))))
+      .bind("c_str"));
 
   Finder->addMatcher(CStrMatcher, this);
   llvm::outs() << "Registering matchers\n";
