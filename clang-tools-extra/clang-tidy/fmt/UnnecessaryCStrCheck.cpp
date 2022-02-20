@@ -35,18 +35,33 @@ void UnnecessaryCStrCheck::registerMatchers(MatchFinder *Finder) {
       TK_AsIs, callExpr(callee(functionDecl(PrintCall)),
                         hasAnyArgument(cxxMemberCallExpr(
                                             callee(cxxMethodDecl(hasName("c_str"))),
-                                            on(hasType(StringType)))))
-      .bind("c_str"));
-
+                                            on(hasType(StringType))).bind("c_str")))
+//                            )).bind("print")
+      );
   Finder->addMatcher(CStrMatcher, this);
   llvm::outs() << "Registering matchers\n";
 }
 
 void UnnecessaryCStrCheck::check(const MatchFinder::MatchResult &Result) {
-  const auto *Call = Result.Nodes.getNodeAs<CXXMemberCallExpr>("c_str");
+#if 0
+  const auto *Call = Result.Nodes.getNodeAs<CXXMemberCallExpr>("print");
+
+  for (const auto &Arg : Call->arguments()) {
+
+  }
+#endif
   llvm::outs() << "Found c_str\n";
 
+  const auto *CStrCall = Result.Nodes.getNodeAs<CXXMemberCallExpr>("c_str");
+  DiagnosticBuilder Diag =
+        diag(CStrCall->getBeginLoc(), "Remove unnecessary call to std::string::c_str()");
+  const auto *StringExpr = CStrCall->getImplicitObjectArgument();
+  const LangOptions &LangOpts = getLangOpts();
+  SourceLocation RemovalPoint =
+        Lexer::findNextToken(StringExpr->getEndLoc(), *Result.SourceManager,
+                             LangOpts)->getLocation();
 
+  Diag << FixItHint::CreateRemoval(CharSourceRange::getTokenRange(RemovalPoint, CStrCall->getEndLoc()));
 }
 
 } // namespace fmt
